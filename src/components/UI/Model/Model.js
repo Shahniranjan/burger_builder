@@ -1,4 +1,4 @@
-import React, {Fragment} from "react";
+import React, {Fragment, memo} from "react";
 import Classes from "./Model.css";
 import Backdrop from "../Backdrop/Backdrop";
 
@@ -15,4 +15,4 @@ const Model = (props) => (
     </Fragment>
 );
 
-export default Model;
+export default memo(Model);

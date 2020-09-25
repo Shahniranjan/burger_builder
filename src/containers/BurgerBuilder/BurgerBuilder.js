@@ -44,6 +44,10 @@ class BurgerBuilder extends Component {
         this.setState(prev => ({purchasing: false}))
     };
 
+    purchaseContinueHandler = () => {
+        window.alert('continue purchasing');
+    };
+
     addIngredientHandler = (type) => {
         // console.log(e.target);
         this.setState(prev => ({
@@ -82,7 +86,11 @@ class BurgerBuilder extends Component {
         return (
             <div>
                 <Model show={this.state.purchasing} close={this.purchaseCancelHandler}>
-                    <OrderSummary ingredients={this.state.ingredients}/>
+                    <OrderSummary
+                        totalPrice={this.state.totalPrice}
+                        ingredients={this.state.ingredients}
+                        canclePurchase={this.purchaseCancelHandler}
+                        continuePurchase={this.purchaseContinueHandler}/>
                 </Model>
                 <Burger ingredients={this.state.ingredients}/>
                 <BuilderControls
