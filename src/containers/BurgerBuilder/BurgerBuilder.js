@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 
 import Burger from "../../components/Burger/Burger";
 import BuilderControls from "../../components/Burger/BuilderControls/BuilderControls";
@@ -18,17 +18,22 @@ const INGREDIENTCOST = {
 
 class BurgerBuilder extends Component {
     state = {
-        ingredients: {
-            cheese: 0,
-            salad: 0,
-            bacon: 0,
-            meat: 0
-        },
+        ingredients: null,
         totalPrice: 4,
         purchasable: false,
         purchasing: false,
-        loading: false
+        loading: false,
+        error: false
     };
+
+    componentDidMount() {
+        axios.get('/ingredients.json')
+            .then(response => {
+                this.setState(prev => ({ingredients: response.data}))
+            }) .catch(error => {
+                return this.setState(prev => ({error:true}))
+            })
+    }
 
     updatePurchasable = () => {
         let ingredients = {...this.state.ingredients};
@@ -52,10 +57,10 @@ class BurgerBuilder extends Component {
 
     purchaseContinueHandler = () => {
         // window.alert('continue purchasing');
-        this.setState(prev =>({
-            loading:true
+        this.setState(prev => ({
+            loading: true
         }));
-        let data={
+        let data = {
             price: this.state.totalPrice,
             ingredients: this.state.ingredients,
             deliveryMethod: 'fastest',
@@ -69,20 +74,20 @@ class BurgerBuilder extends Component {
                 email: "feddev007@gmail.com"
             }
         };
-        axios.post('/order.json',data)
-            .then(response=>{
+        axios.post('/orde', data)
+            .then(response => {
                 console.log(response);
-                this.setState(prev=>({
-                    loading:false,
-                    purchasing:false
+                this.setState(prev => ({
+                    loading: false,
+                    purchasing: false
                 }))
             })
-            .catch(error=>{
-                this.setState(prev=>({
-                    loading:false,
-                    purchasing:false
+            .catch(error => {
+                this.setState(prev => ({
+                    loading: false,
+                    purchasing: false
                 }));
-                console.log(error)})
+            })
     };
 
     addIngredientHandler = (type) => {
@@ -120,20 +125,10 @@ class BurgerBuilder extends Component {
         for (let key in disabledInfo) {
             disabledInfo[key] = disabledInfo[key] <= 0;
         }
-        let orderSummary = <OrderSummary
-            totalPrice={this.state.totalPrice}
-            ingredients={this.state.ingredients}
-            canclePurchase={this.purchaseCancelHandler}
-            continuePurchase={this.purchaseContinueHandler}/>
-        if (this.state.loading == true){
-            orderSummary= <Spinner/>
-        }
-        return (
-            <div>
-                <Model show={this.state.purchasing} close={this.purchaseCancelHandler}>
-                    {orderSummary}
-                </Model>
-                <Burger ingredients={this.state.ingredients}/>
+        let orderSummary = null;
+        let burger = this.state.error ? "cannot load the incredients" : <Spinner/>;
+        if (this.state.ingredients) {
+            burger = <Fragment> <Burger ingredients={this.state.ingredients}/>
                 <BuilderControls
                     addIngredient={this.addIngredientHandler}
                     removeIngredient={this.removeIngredientHandler}
@@ -141,7 +136,24 @@ class BurgerBuilder extends Component {
                     totalprice={this.state.totalPrice}
                     purchasable={this.state.purchasable}
                     purchasingHandler={this.purchaseHandler}
-                />
+                /></Fragment>;
+
+            orderSummary = <OrderSummary
+                totalPrice={this.state.totalPrice}
+                ingredients={this.state.ingredients}
+                canclePurchase={this.purchaseCancelHandler}
+                continuePurchase={this.purchaseContinueHandler}/>;
+        }
+
+        if (this.state.loading == true) {
+            orderSummary = <Spinner/>
+        }
+        return (
+            <div>
+                <Model show={this.state.purchasing} close={this.purchaseCancelHandler}>
+                    {orderSummary}
+                </Model>
+                {burger}
             </div>
         );
     }
