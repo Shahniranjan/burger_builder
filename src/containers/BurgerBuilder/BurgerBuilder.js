@@ -3,7 +3,7 @@ import React, {Component, Fragment} from "react";
 import Burger from "../../components/Burger/Burger";
 import BuilderControls from "../../components/Burger/BuilderControls/BuilderControls";
 import Model from "../../components/UI/Model/Model";
-import OrderSummary from "../../components/OrderSummary/OrderSummary";
+import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 import axios from "../../axios-order";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import WithErrorHandler from "../../hoc/WithErrorHandler/WithErrorHandler";
@@ -27,12 +27,13 @@ class BurgerBuilder extends Component {
     };
 
     componentDidMount() {
+        console.log(this.props);
         axios.get('/ingredients.json')
             .then(response => {
                 this.setState(prev => ({ingredients: response.data}))
-            }) .catch(error => {
-                return this.setState(prev => ({error:true}))
-            })
+            }).catch(error => {
+            return this.setState(prev => ({error: true}))
+        })
     }
 
     updatePurchasable = () => {
@@ -56,38 +57,46 @@ class BurgerBuilder extends Component {
     };
 
     purchaseContinueHandler = () => {
+        const queryParams = [];
+        for (let type in this.state.ingredients){
+            queryParams.push(encodeURIComponent(type)+ "=" + encodeURIComponent(this.state.ingredients[type]));
+        }
+        const queryString = queryParams.join('&');
+        this.props.history.push({
+            pathname:"/checkout",
+            search: "?"+ queryString
+        });
         // window.alert('continue purchasing');
-        this.setState(prev => ({
-            loading: true
-        }));
-        let data = {
-            price: this.state.totalPrice,
-            ingredients: this.state.ingredients,
-            deliveryMethod: 'fastest',
-            customer: {
-                address: {
-                    country: 'Nepal',
-                    street: 'testStreet',
-                    zipCode: '00977'
-                },
-                name: "Niranjan",
-                email: "feddev007@gmail.com"
-            }
-        };
-        axios.post('/orde', data)
-            .then(response => {
-                console.log(response);
-                this.setState(prev => ({
-                    loading: false,
-                    purchasing: false
-                }))
-            })
-            .catch(error => {
-                this.setState(prev => ({
-                    loading: false,
-                    purchasing: false
-                }));
-            })
+        // this.setState(prev => ({
+        //     loading: true
+        // }));
+        // let data = {
+        //     price: this.state.totalPrice,
+        //     ingredients: this.state.ingredients,
+        //     deliveryMethod: 'fastest',
+        //     customer: {
+        //         address: {
+        //             country: 'Nepal',
+        //             street: 'testStreet',
+        //             zipCode: '00977'
+        //         },
+        //         name: "Niranjan",
+        //         email: "feddev007@gmail.com"
+        //     }
+        // };
+        // axios.post('/order.json', data)
+        //     .then(response => {
+        //         this.setState(prev => ({
+        //             loading: false,
+        //             purchasing: false
+        //         }))
+        //     })
+        //     .catch(error => {
+        //         this.setState(prev => ({
+        //             loading: false,
+        //             purchasing: false
+        //         }));
+        //     })
     };
 
     addIngredientHandler = (type) => {
@@ -128,7 +137,8 @@ class BurgerBuilder extends Component {
         let orderSummary = null;
         let burger = this.state.error ? "cannot load the incredients" : <Spinner/>;
         if (this.state.ingredients) {
-            burger = <Fragment> <Burger ingredients={this.state.ingredients}/>
+            burger = <Fragment>
+                <Burger ingredients={this.state.ingredients}/>
                 <BuilderControls
                     addIngredient={this.addIngredientHandler}
                     removeIngredient={this.removeIngredientHandler}
