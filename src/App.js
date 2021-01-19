@@ -4,17 +4,17 @@ import Layout from './hoc/Layouts/Layout';
 import BurgerBuilder from './containers/BurgerBuilder/BurgerBuilder';
 import Checkout from "./containers/Checkout/Checkout";
 import {BrowserRouter, Route, Switch} from "react-router-dom";
+import Orders from "./containers/Orders/Orders";
 
 function App() {
     return (
         <div className="App">
             <Layout>
-                <BrowserRouter>
-                    <Switch>
-                        <Route exact path="/checkout" component={Checkout}/>
-                        <Route exact path="/" component={BurgerBuilder}/>
-                    </Switch>
-                </BrowserRouter>
+                <Switch>
+                    <Route path="/checkout" component={Checkout}/>
+                    <Route path="/orders" component={Orders}/>
+                    <Route exact path="/" component={BurgerBuilder}/>
+                </Switch>
             </Layout>
 
         </div>

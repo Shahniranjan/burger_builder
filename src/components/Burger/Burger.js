@@ -25,7 +25,7 @@ import BurgerIncredent from './BurgerIncredent/BurgerIncredent';
 import Class from './Burger.css';
 
 const burger = (props) => {
-
+console.log(props.ingredients);
     let transformedIncredients =
         Object.keys(props.ingredients)
             .map((keys) => {

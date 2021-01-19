@@ -27,7 +27,6 @@ class BurgerBuilder extends Component {
     };
 
     componentDidMount() {
-        console.log(this.props);
         axios.get('/ingredients.json')
             .then(response => {
                 this.setState(prev => ({ingredients: response.data}))
@@ -61,46 +60,15 @@ class BurgerBuilder extends Component {
         for (let type in this.state.ingredients){
             queryParams.push(encodeURIComponent(type)+ "=" + encodeURIComponent(this.state.ingredients[type]));
         }
+        queryParams.push('price=' + this.state.totalPrice);
         const queryString = queryParams.join('&');
         this.props.history.push({
             pathname:"/checkout",
             search: "?"+ queryString
         });
-        // window.alert('continue purchasing');
-        // this.setState(prev => ({
-        //     loading: true
-        // }));
-        // let data = {
-        //     price: this.state.totalPrice,
-        //     ingredients: this.state.ingredients,
-        //     deliveryMethod: 'fastest',
-        //     customer: {
-        //         address: {
-        //             country: 'Nepal',
-        //             street: 'testStreet',
-        //             zipCode: '00977'
-        //         },
-        //         name: "Niranjan",
-        //         email: "feddev007@gmail.com"
-        //     }
-        // };
-        // axios.post('/order.json', data)
-        //     .then(response => {
-        //         this.setState(prev => ({
-        //             loading: false,
-        //             purchasing: false
-        //         }))
-        //     })
-        //     .catch(error => {
-        //         this.setState(prev => ({
-        //             loading: false,
-        //             purchasing: false
-        //         }));
-        //     })
     };
 
     addIngredientHandler = (type) => {
-        // console.log(e.target);
         this.setState(prev => ({
             totalPrice: prev.totalPrice + INGREDIENTCOST[type]
         }));
